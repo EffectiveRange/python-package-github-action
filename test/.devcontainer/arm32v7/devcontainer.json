@@ -1,0 +1,5 @@
+{
+	"name": "arm32v7",
+	"image": "arm32v7/python:3.9-bullseye",
+	"privileged": true
+}

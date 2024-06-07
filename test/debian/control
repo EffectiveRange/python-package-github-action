@@ -1,0 +1,12 @@
+Source: test-module
+Section: python
+Priority: extra
+Maintainer: Global Scope Ltd. <info@globalscope.info>
+Build-Depends: debhelper (>= 9), python3, dh-virtualenv (>= 0.8)
+Standards-Version: 3.9.5
+
+Package: test-module
+Architecture: any
+Pre-Depends: dpkg (>= 1.16.1), python3, ${misc:Pre-Depends}
+Depends: python3, python3-pip ${misc:Depends}
+Description: Test module for packaging

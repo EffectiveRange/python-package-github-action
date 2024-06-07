@@ -1,0 +1,5 @@
+{
+	"name": "amd64",
+	"image": "amd64/python:3.9-bullseye",
+	"privileged": true
+}

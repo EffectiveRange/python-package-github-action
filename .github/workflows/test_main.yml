@@ -1,0 +1,77 @@
+name: Test Python packaging
+
+on:
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  test-main-library:
+    name: Test creating library packages
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up test environment
+        run: cp -a test/. .
+
+      - name: Create library packages
+        uses: ./
+        with:
+          package-version: '1.1.0'
+          debian-dist-type: 'library'
+
+      - name: Assert packages have created
+        run: |
+          set -e
+          ls dist/test-module-1.1.0.tar.gz
+          ls dist/test_module-1.1.0-py3-none-linux_x86_64.whl
+          ls dist/python3-test-module_1.1.0_all.deb
+
+  test-main-application:
+    name: Test creating application packages
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up test environment
+        run: cp -a test/. .
+
+      - name: Create library packages
+        uses: ./
+        with:
+          package-version: '1.1.0'
+          debian-dist-type: 'application'
+
+      - name: Assert packages have created
+        run: |
+          set -e
+          ls dist/test-module-1.1.0.tar.gz
+          ls dist/test_module-1.1.0-py3-none-linux_x86_64.whl
+          ls dist/test-module_1.1.0_amd64.deb
+
+  test-main-cross:
+    name: Test creating cross packages
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up test environment
+        run: cp -a test/. .
+
+      - name: Create library packages
+        uses: ./
+        with:
+          package-version: '1.1.0'
+          debian-dist-type: 'application'
+          is-cross-platform: 'true'
+          devcontainer-config: 'arm64v8'
+          devcontainer-command: python setup.py sdist bdist_wheel
+
+      - name: Assert packages have created
+        run: |
+          set -e
+          ls dist/test-module-1.1.0.tar.gz
+          ls dist/test_module-1.1.0-py3-none-linux_aarch64.whl

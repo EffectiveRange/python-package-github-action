@@ -1,0 +1,126 @@
+name: 'Python Package GitHub Action'
+description: 'Create Python distribution packages: source, wheel and Debian packages'
+branding:
+  icon: 'package'
+  color: 'yellow'
+
+inputs:
+  package-version:
+    description: 'Package version'
+    required: false
+    default: ''
+  is-cross-platform:
+    description: 'Is cross platform build?'
+    required: false
+    default: 'false'
+
+  python-version:
+    description: 'Python version'
+    required: false
+    default: '3.9'
+  add-source-dist:
+    description: 'Should create source distribution?'
+    required: false
+    default: 'true'
+  add-wheel-dist:
+    description: 'Should create wheel distribution?'
+    required: false
+    default: 'true'
+  debian-dist-type:
+    description: 'Debian distribution type (application / library / none)'
+    required: false
+    default: 'none'
+  debian-dist-command:
+    description: 'Debian build command'
+    required: false
+
+  docker-registry:
+    description: 'Docker registry'
+    required: false
+    default: 'docker.io'
+  docker-username:
+    description: 'Docker registry username'
+    required: false
+  docker-password:
+    description: 'Docker registry password'
+    required: false
+  devcontainer-config:
+    description: 'Devcontainer config selector (eg. architecture, OS, etc.)'
+    required: false
+    default: '.'
+  devcontainer-command:
+    description: 'Devcontainer run command'
+    required: false
+
+outputs:
+  upload-name:
+    description: 'Name of the uploaded artifacts'
+    value: ${{ github.event.repository.name }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up environment
+      id: set-env
+      shell: bash
+      run: |
+        VERSION_REGEX="^[0-9]+\.[0-9]+\.[0-9]+$"
+        if [[ "${{ inputs.package-version }}" =~ $VERSION_REGEX ]]; then
+          echo "VERSION=${{ inputs.package-version }}" >> $GITHUB_ENV
+        elif [[ "${GITHUB_REF#refs/tags/v}" =~ $VERSION_REGEX ]]; then
+          echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
+        else
+          echo "Error: Invalid version"
+          exit 1
+        fi
+    - name: Update version in setup.py
+      shell: bash
+      run: sed -i "s/version='.*',/version='$VERSION',/" setup.py
+    - if: ${{ inputs.debian-dist-type == 'application' }}
+      name: Update version in debian/changelog
+      shell: bash
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y devscripts
+        export DEBEMAIL="action@github.com"
+        export DEBFULLNAME="GitHub Action"
+        dch -v $VERSION -D stable "Release $VERSION"
+
+    - if: ${{ inputs.is-cross-platform != 'true' }}
+      name: Build native or platform independent packages
+      uses: GlobalScope-HUN/python-package-action/native@v1
+      with:
+        python-version: ${{ inputs.python-version }}
+        add-source-dist: ${{ inputs.add-source-dist }}
+        add-wheel-dist: ${{ inputs.add-wheel-dist }}
+        debian-dist-type: ${{ inputs.debian-dist-type }}
+        debian-dist-command: ${{ inputs.debian-dist-command }}
+
+    - if: ${{ inputs.is-cross-platform == 'true' }}
+      name: Build cross platform packages via devcontainer
+      uses: GlobalScope-HUN/python-package-action/cross@v1
+      with:
+        docker-registry: ${{ inputs.docker-registry }}
+        docker-username: ${{ inputs.docker-username }}
+        docker-password: ${{ inputs.docker-password }}
+        devcontainer-config: ${{ inputs.devcontainer-config }}
+        devcontainer-command: ${{ inputs.devcontainer-command }}
+
+    - name: Commit changes
+      shell: bash
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git diff --exit-code || git commit -am "Update version to $VERSION"
+    - name: Push changes
+      uses: ad-m/github-push-action@master
+      if: ${{ !startsWith(github.ref, 'refs/pull/') && success() }}
+      with:
+        github_token: ${{ github.token }}
+    - name: Publish distributions
+      uses: actions/upload-artifact@v4
+      if: ${{ !startsWith(github.ref, 'refs/pull/') }}
+      with:
+        name: ${{ github.event.repository.name }}
+        path: dist/*
+        if-no-files-found: error
