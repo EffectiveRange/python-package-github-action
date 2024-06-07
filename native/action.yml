@@ -1,0 +1,84 @@
+name: 'Python platform independent package action'
+description: 'Create platform independent Python distribution packages with wheel, FPM and dh-virtualenv support'
+branding:
+  icon: 'package'
+  color: 'white'
+
+inputs:
+  python-version:
+    description: 'Python version'
+    required: false
+    default: '3.9'
+  add-source-dist:
+    description: 'Should create source distribution?'
+    required: false
+    default: 'true'
+  add-wheel-dist:
+    description: 'Should create wheel distribution?'
+    required: false
+    default: 'true'
+  debian-dist-type:
+    description: 'Debian distribution type (application / library / none)'
+    required: false
+    default: 'none'
+  debian-dist-command:
+    description: 'Debian build command'
+    required: false
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up Python 3
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python-version }}
+    - name: Install dependencies
+      shell: bash
+      run: |
+        python -m pip install --upgrade pip
+        pip install .
+        mkdir -p dist
+    - if: ${{ inputs.debian-dist-type == 'library' }}
+      name: Create debian distribution (library)
+      shell: bash
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y ruby ruby-dev rubygems build-essential
+        sudo gem install -N fpm
+        
+        COMMAND=${{ inputs.debian-dist-command }}
+        
+        # Default FPM command
+        COMMAND=${COMMAND:-"fpm -s python -t deb --package dist --force --log warn --python-bin python3 --python-package-name-prefix python3 setup.py"}
+        
+        eval sudo -E $COMMAND
+    - if: ${{ inputs.debian-dist-type == 'application' }}
+      name: Create debian distribution (application)
+      shell: bash
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential debhelper devscripts equivs dh-virtualenv python3-virtualenv
+        
+        COMMAND=${{ inputs.debian-dist-command }}
+        
+        # Default dh-virtualenv command
+        COMMAND=${COMMAND:-"dpkg-buildpackage -us -ui -uc -tc"}
+        
+        eval sudo -E $COMMAND
+        
+        # Copy debian package to dist folder if generated out of tree
+        cp -f ../*.deb dist
+        
+        # Keep only .deb files
+        shopt -s extglob
+        rm -f dist/!(*.deb)
+    - if: ${{ inputs.add-source-dist == 'true' }}
+      name: Create source distribution
+      shell: bash
+      run: python setup.py sdist
+    - if: ${{ inputs.add-wheel-dist == 'true' }}
+      name: Create wheel distribution
+      shell: bash
+      run: |
+        pip install wheel
+        python setup.py bdist_wheel

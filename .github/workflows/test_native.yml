@@ -1,0 +1,50 @@
+name: Test platform independent Python packaging
+
+on:
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  test-native-library:
+    name: Test creating native library packages
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up test environment
+        run: cp -a test/. .
+
+      - name: Create library packages
+        uses: ./native
+        with:
+          debian-dist-type: 'library'
+
+      - name: Assert packages have created
+        run: |
+          set -e
+          ls dist/test-module-1.0.0.tar.gz
+          ls dist/test_module-1.0.0-py3-none-linux_x86_64.whl
+          ls dist/python3-test-module_1.0.0_all.deb
+
+  test-native-application:
+    name: Test creating native application packages
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up test environment
+        run: cp -a test/. .
+
+      - name: Create application packages
+        uses: ./native
+        with:
+          debian-dist-type: 'application'
+
+      - name: Assert packages have created
+        run: |
+          set -e
+          ls dist/test-module-1.0.0.tar.gz
+          ls dist/test_module-1.0.0-py3-none-linux_x86_64.whl
+          ls dist/test-module_1.0.0_amd64.deb
