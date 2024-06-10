@@ -88,7 +88,7 @@ runs:
 
     - if: ${{ inputs.is-cross-platform != 'true' }}
       name: Build native or platform independent packages
-      uses: GlobalScope-HUN/python-package-action/native@v1
+      uses: EffectiveRange/python-package-github-action/native@v1
       with:
         python-version: ${{ inputs.python-version }}
         add-source-dist: ${{ inputs.add-source-dist }}
@@ -98,7 +98,7 @@ runs:
 
     - if: ${{ inputs.is-cross-platform == 'true' }}
       name: Build cross platform packages via devcontainer
-      uses: GlobalScope-HUN/python-package-action/cross@v1
+      uses: EffectiveRange/python-package-github-action/cross@v1
       with:
         docker-registry: ${{ inputs.docker-registry }}
         docker-username: ${{ inputs.docker-username }}

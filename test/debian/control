@@ -1,7 +1,7 @@
 Source: test-module
 Section: python
 Priority: extra
-Maintainer: Global Scope Ltd. <info@globalscope.info>
+Maintainer: Effective Range <info@effective-range.com>
 Build-Depends: debhelper (>= 9), python3, dh-virtualenv (>= 0.8)
 Standards-Version: 3.9.5
 
