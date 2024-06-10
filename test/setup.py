@@ -16,7 +16,7 @@ setup(
         },
     },
     description='Test module for packaging',
-    author='Global Scope Ltd.',
-    author_email='info@globalscope.info',
+    author='Effective Range',
+    author_email='info@effective-range.com',
     packages=['main']
 )
