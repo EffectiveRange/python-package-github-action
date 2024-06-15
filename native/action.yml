@@ -67,7 +67,7 @@ runs:
         eval sudo -E $COMMAND
         
         # Copy debian package to dist folder if generated out of tree
-        cp -f ../*.deb dist
+        cp ../*.deb dist || true
         
         # Keep only .deb files
         shopt -s extglob
