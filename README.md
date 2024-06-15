@@ -2,10 +2,23 @@
 
 Create Python distribution packages: source, wheel and Debian packages
 
+## Table of Contents
+
+- [Features](#features)
+- [Inputs](#inputs)
+    - [Platform independent or native package creation](#platform-independent-or-native-package-creation)
+    - [Cross-platform package creation](#cross-platform-package-creation)
+- [Outputs](#outputs)
+- [Usage](#usage)
+    - [Create Python library packages](#create-python-library-packages)
+    - [Create Python application packages](#create-python-application-packages)
+    - [Create cross-platform Python application packages](#create-cross-platform-python-application-packages)
+
 ## Features
 
 - Create Python source and wheel packages
-- Create Debian packages for Python libraries and applications
+- Create Debian packages for Python libraries and applications (supports [FPM](https://fpm.readthedocs.io/en/latest/)
+  and [dh-virtualenv](https://dh-virtualenv.readthedocs.io/en/latest/) packaging)
 - Cross-platform package creation using QEMU, Docker buildx and devcontainer
 
 ## Inputs
@@ -19,14 +32,16 @@ Create Python distribution packages: source, wheel and Debian packages
 - `add-source-dist`: Add source distribution to the package creation (default: `true`)
 - `add-wheel-dist`: Add wheel distribution to the package creation (default: `true`)
 - `debian-dist-type`: Type of the Debian package to create: `library`/`application`/`none` (default: `none`)
-- `debian-dist-command`: Command to run for the Debian package creation (default: FPM build for libraries, dh-virtualenv for applications)
+- `debian-dist-command`: Command to run for the Debian package creation (default: FPM build for libraries, dh-virtualenv
+  for applications)
 
 ### Cross-platform package creation
 
 - `docker-registry`: Docker registry to use (default: `docker.io`)
 - `docker-username`: Docker registry username
 - `docker-password`: Docker registry password
-- `devcontainer-config`: Devcontainer configuration selector `.devcontainer/<config>/devcontainer.json` (if not specified, it will use `.devcontainer/devcontainer.json`)
+- `devcontainer-config`: Devcontainer configuration selector `.devcontainer/<config>/devcontainer.json` (if not
+  specified, it will use `.devcontainer/devcontainer.json`)
 - `devcontainer-command`: Command to run in the devcontainer
 
 ## Outputs
@@ -88,7 +103,6 @@ jobs:
       - uses: EffectiveRange/python-package-github-action@v1
         with:
           is-cross-platform: 'true'
-          debian-dist-type: 'application'
           docker-username: ${{ secrets.DOCKERHUB_USERNAME }}
           docker-password: ${{ secrets.DOCKERHUB_TOKEN }}
           devcontainer-config: 'arm32v7'
