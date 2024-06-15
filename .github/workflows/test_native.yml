@@ -5,7 +5,7 @@ on:
     branches: [ "main" ]
 
 jobs:
-  test-native-library:
+  test-native-library-default-command:
     name: Test creating native library packages
 
     runs-on: ubuntu-latest
@@ -23,11 +23,36 @@ jobs:
       - name: Assert packages have created
         run: |
           set -e
+          ls -l dist
           ls dist/test-module-1.0.0.tar.gz
           ls dist/test_module-1.0.0-py3-none-linux_x86_64.whl
           ls dist/python3-test-module_1.0.0_all.deb
 
-  test-native-application:
+  test-native-library-custom-command:
+    name: Test creating native library packages
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up test environment
+        run: cp -a test/. .
+
+      - name: Create library packages
+        uses: ./native
+        with:
+          debian-dist-type: 'library'
+          debian-dist-command: 'fpm -s python -t deb --package dist --force --log warn setup.py'
+
+      - name: Assert packages have created
+        run: |
+          set -e
+          ls -l dist
+          ls dist/test-module-1.0.0.tar.gz
+          ls dist/test_module-1.0.0-py3-none-linux_x86_64.whl
+          ls dist/python-test-module_1.0.0_all.deb
+
+  test-native-application-default-command:
     name: Test creating native application packages
 
     runs-on: ubuntu-latest
@@ -45,6 +70,31 @@ jobs:
       - name: Assert packages have created
         run: |
           set -e
+          ls -l dist
+          ls dist/test-module-1.0.0.tar.gz
+          ls dist/test_module-1.0.0-py3-none-linux_x86_64.whl
+          ls dist/test-module_1.0.0_amd64.deb
+
+  test-native-application-custom-command:
+    name: Test creating native application packages
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up test environment
+        run: cp -a test/. .
+
+      - name: Create application packages
+        uses: ./native
+        with:
+          debian-dist-type: 'application'
+          debian-dist-command: 'dpkg-buildpackage -us -ui -uc -tc'
+
+      - name: Assert packages have created
+        run: |
+          set -e
+          ls -l dist
           ls dist/test-module-1.0.0.tar.gz
           ls dist/test_module-1.0.0-py3-none-linux_x86_64.whl
           ls dist/test-module_1.0.0_amd64.deb
