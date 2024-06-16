@@ -13,6 +13,12 @@ inputs:
     description: 'Is cross platform build?'
     required: false
     default: 'false'
+  pre-build-command:
+    description: 'Command to execute before packaging'
+    required: false
+  post-build-command:
+    description: 'Command to execute after packaging'
+    required: false
 
   python-version:
     description: 'Python version'
@@ -73,18 +79,26 @@ runs:
           echo "Error: Invalid version"
           exit 1
         fi
+        echo "GIT_TAG=v$VERSION" >> $GITHUB_ENV
     - name: Update version in setup.py
       shell: bash
       run: sed -i "s/version='.*',/version='$VERSION',/" setup.py
     - if: ${{ inputs.debian-dist-type == 'application' }}
-      name: Update version in debian/changelog
+      name: Check and update version in debian/changelog
       shell: bash
       run: |
-        sudo apt-get update
-        sudo apt-get install -y devscripts
-        export DEBEMAIL="action@github.com"
-        export DEBFULLNAME="GitHub Action"
-        dch -v $VERSION -D stable "Release $VERSION"
+        if ! grep -q "($VERSION)" debian/changelog; then
+          sudo apt-get update
+          sudo apt-get install -y devscripts
+          export DEBEMAIL="action@github.com"
+          export DEBFULLNAME="GitHub Action"
+          dch -v $VERSION -D stable "Release $VERSION"
+        fi
+
+    - if: ${{ inputs.pre-build-command }}
+      name: Run pre-build command
+      shell: bash
+      run: ${{ inputs.pre-build-command }}
 
     - if: ${{ inputs.is-cross-platform != 'true' }}
       name: Build native or platform independent packages
@@ -105,6 +119,11 @@ runs:
         docker-password: ${{ inputs.docker-password }}
         devcontainer-config: ${{ inputs.devcontainer-config }}
         devcontainer-command: ${{ inputs.devcontainer-command }}
+
+    - if: ${{ inputs.post-build-command }}
+      name: Run post-build command
+      shell: bash
+      run: ${{ inputs.post-build-command }}
 
     - name: Commit changes
       shell: bash

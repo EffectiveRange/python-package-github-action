@@ -25,6 +25,8 @@ Create Python distribution packages: source, wheel and Debian packages
 
 - `package-version`: Version of the package to create (if not provided, will use the given git tag)
 - `is-cross-platform`: Create cross-platform packages using Docker buildx and QEMU (default: `false`)
+- `pre-build-command`: Command to run before the package creation
+- `post-build-command`: Command to run after the package creation
 
 ### Platform independent or native package creation
 
