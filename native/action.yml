@@ -38,6 +38,16 @@ runs:
         python -m pip install --upgrade pip
         pip install .
         mkdir -p dist
+    - if: ${{ inputs.add-source-dist == 'true' }}
+      name: Create source distribution
+      shell: bash
+      run: python setup.py sdist
+    - if: ${{ inputs.add-wheel-dist == 'true' }}
+      name: Create wheel distribution
+      shell: bash
+      run: |
+        pip install wheel
+        python setup.py bdist_wheel
     - if: ${{ inputs.debian-dist-type == 'library' }}
       name: Create debian distribution (library)
       shell: bash
@@ -68,17 +78,3 @@ runs:
         
         # Copy debian package to dist folder if generated out of tree
         cp ../*.deb dist || true
-        
-        # Keep only .deb files
-        shopt -s extglob
-        rm -f dist/!(*.deb)
-    - if: ${{ inputs.add-source-dist == 'true' }}
-      name: Create source distribution
-      shell: bash
-      run: python setup.py sdist
-    - if: ${{ inputs.add-wheel-dist == 'true' }}
-      name: Create wheel distribution
-      shell: bash
-      run: |
-        pip install wheel
-        python setup.py bdist_wheel
