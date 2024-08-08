@@ -59,9 +59,9 @@ runs:
         COMMAND="${{ inputs.debian-dist-command }}"
         
         # Default FPM command
-        COMMAND=${COMMAND:-"fpm -s python -t deb --package dist --force --log warn --python-bin python3 --python-package-name-prefix python3 setup.py"}
+        COMMAND=${COMMAND:-"fpm -s python -t deb -p dist -f --log info --python-bin python3 --python-package-name-prefix python3 setup.py"}
         
-        eval sudo -E $COMMAND
+        eval $COMMAND
     - if: ${{ inputs.debian-dist-type == 'application' }}
       name: Create debian distribution (application)
       shell: bash
@@ -72,9 +72,9 @@ runs:
         COMMAND="${{ inputs.debian-dist-command }}"
         
         # Default dh-virtualenv command
-        COMMAND=${COMMAND:-"dpkg-buildpackage -us -ui -uc -tc"}
+        COMMAND=${COMMAND:-"dpkg-buildpackage -us -ui -uc -tc -b"}
         
-        eval sudo -E $COMMAND
+        eval $COMMAND
         
         # Copy debian package to dist folder if generated out of tree
         cp ../*.deb dist || true
