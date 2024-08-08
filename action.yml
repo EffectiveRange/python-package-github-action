@@ -79,7 +79,6 @@ runs:
           echo "Error: Invalid version"
           exit 1
         fi
-        echo "GIT_TAG=v$VERSION" >> $GITHUB_ENV
     - name: Update version in setup.py
       shell: bash
       run: sed -i "s/version='.*',/version='$VERSION',/" setup.py
