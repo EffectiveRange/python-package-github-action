@@ -5,43 +5,47 @@ on:
     branches: [ "main" ]
 
 jobs:
-  test-native-library-default-command:
-    name: Test creating native library packages
+  test-native-fpm-deb-default-command:
+    name: Test creating native fpm-deb packages
 
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
       - name: Set up test environment
-        run: cp -a test/. .
+        run: |
+          cp -a test/. .
+          rm -rf dist
 
-      - name: Create library packages
+      - name: Create packages
         uses: ./native
         with:
-          debian-dist-type: 'library'
+          debian-dist-type: 'fpm-deb'
 
       - name: Assert packages have created
         run: |
           set -e
           ls -l dist
           ls dist/test-module-1.0.0.tar.gz
-          ls dist/test_module-1.0.0-py3-none-linux_x86_64.whl
+          ls dist/test_module-1.0.0-py3-none-any.whl
           ls dist/python3-test-module_1.0.0_all.deb
 
-  test-native-library-custom-command:
-    name: Test creating native library packages
+  test-native-fpm-deb-custom-command:
+    name: Test creating native fpm-deb packages
 
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
       - name: Set up test environment
-        run: cp -a test/. .
+        run: |
+          cp -a test/. .
+          rm -rf dist
 
-      - name: Create library packages
+      - name: Create packages
         uses: ./native
         with:
-          debian-dist-type: 'library'
+          debian-dist-type: 'fpm-deb'
           debian-dist-command: 'fpm -s python -t deb --package dist --force --log warn setup.py'
 
       - name: Assert packages have created
@@ -49,46 +53,50 @@ jobs:
           set -e
           ls -l dist
           ls dist/test-module-1.0.0.tar.gz
-          ls dist/test_module-1.0.0-py3-none-linux_x86_64.whl
+          ls dist/test_module-1.0.0-py3-none-any.whl
           ls dist/python-test-module_1.0.0_all.deb
 
-  test-native-application-default-command:
-    name: Test creating native application packages
+  test-native-dh-virtualenv-default-command:
+    name: Test creating native dh-virtualenv packages
 
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
       - name: Set up test environment
-        run: cp -a test/. .
+        run: |
+          cp -a test/. .
+          rm -rf dist
 
-      - name: Create application packages
+      - name: Create packages
         uses: ./native
         with:
-          debian-dist-type: 'application'
+          debian-dist-type: 'dh-virtualenv'
 
       - name: Assert packages have created
         run: |
           set -e
           ls -l dist
           ls dist/test-module-1.0.0.tar.gz
-          ls dist/test_module-1.0.0-py3-none-linux_x86_64.whl
-          ls dist/test-module_1.0.0_amd64.deb
+          ls dist/test_module-1.0.0-py3-none-any.whl
+          ls dist/test-module_1.0.0-1_all.deb
 
-  test-native-application-custom-command:
-    name: Test creating native application packages
+  test-native-dh-virtualenv-custom-command:
+    name: Test creating native dh-virtualenv packages
 
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
       - name: Set up test environment
-        run: cp -a test/. .
+        run: |
+          cp -a test/. .
+          rm -rf dist
 
-      - name: Create application packages
+      - name: Create packages
         uses: ./native
         with:
-          debian-dist-type: 'application'
+          debian-dist-type: 'dh-virtualenv'
           debian-dist-command: 'dpkg-buildpackage -us -ui -uc -tc'
 
       - name: Assert packages have created
@@ -96,5 +104,5 @@ jobs:
           set -e
           ls -l dist
           ls dist/test-module-1.0.0.tar.gz
-          ls dist/test_module-1.0.0-py3-none-linux_x86_64.whl
+          ls dist/test_module-1.0.0-py3-none-any.whl
           ls dist/test-module_1.0.0_amd64.deb
