@@ -13,21 +13,17 @@ inputs:
     description: 'Build packages using devcontainer'
     required: false
     default: 'false'
-  add-source-dist:
-    description: 'Should create source distribution?'
-    required: false
-    default: 'true'
   pre-build-command:
     description: 'Command to execute before packaging'
     required: false
   post-build-command:
     description: 'Command to execute after packaging'
     required: false
-
-  python-version:
-    description: 'Python version'
+  add-source-dist:
+    description: 'Should create source distribution?'
     required: false
-    default: '3.9'
+    default: 'true'
+
   add-wheel-dist:
     description: 'Should create wheel distribution?'
     required: false
@@ -37,8 +33,13 @@ inputs:
     required: false
     default: 'none'
   debian-dist-command:
-    description: 'Debian build command'
+    description: 'Debian packaging custom command'
     required: false
+
+  python-version:
+    description: 'Python version'
+    required: false
+    default: '3.9'
 
   docker-registry:
     description: 'Docker registry'
@@ -58,9 +59,10 @@ inputs:
     description: 'Devcontainer config selector (eg. architecture, OS, etc.)'
     required: false
     default: '.'
-  packaging-command:
-    description: 'Devcontainer run command'
+  packaging-folder:
+    description: 'Optional subfolder to run packaging command'
     required: false
+    default: '.'
 
 outputs:
   upload-name:
@@ -70,10 +72,13 @@ outputs:
 runs:
   using: 'composite'
   steps:
-    - name: Symlink current Actions repo
-      working-directory: ${{ github.action_path }}
+    - name: Symlink current action repo
+      env:
+        action_path: ${{ github.action_path }}
       shell: bash
-      run: ln -fs $(realpath ../)  ${{ github.workspace }}/
+      run: |
+        ln -fs ${{ env.action_path }} .github/actions
+
     - name: Set up environment
       id: set-env
       shell: bash
@@ -95,7 +100,7 @@ runs:
       shell: bash
       run: |
         git clone https://github.com/EffectiveRange/packaging-tools.git /tmp/packaging-tools
-        echo "/tmp/packaging-tools/python" >> $GITHUB_PATH
+        sudo bash /tmp/packaging-tools/python/install.sh
 
     - if: ${{ inputs.pre-build-command }}
       name: Run pre-build command
@@ -109,24 +114,30 @@ runs:
 
     - if: ${{ inputs.use-devcontainer != 'true' }}
       name: Build native packages
-      uses: ./native
+      uses: ./.github/actions/native
       with:
         python-version: ${{ inputs.python-version }}
-        add-source-dist: ${{ inputs.add-source-dist }}
         add-wheel-dist: ${{ inputs.add-wheel-dist }}
         debian-dist-type: ${{ inputs.debian-dist-type }}
         debian-dist-command: ${{ inputs.debian-dist-command }}
 
     - if: ${{ inputs.use-devcontainer == 'true' }}
       name: Build packages using a devcontainer
-      uses: ./devcontainer
+      uses: ./.github/actions/devcontainer
       with:
+        add-wheel-dist: ${{ inputs.add-wheel-dist }}
+        debian-dist-type: ${{ inputs.debian-dist-type }}
+        debian-dist-command: ${{ inputs.debian-dist-command }}
         docker-registry: ${{ inputs.docker-registry }}
         docker-username: ${{ inputs.docker-username }}
         docker-password: ${{ inputs.docker-password }}
         container-platform: ${{ inputs.container-platform }}
         container-config: ${{ inputs.container-config }}
-        packaging-command: ${{ inputs.packaging-command }}
+        packaging-folder: ${{ inputs.packaging-folder }}
+
+    - name: Unlink the action repository
+      run: rm -f .github/actions
+      shell: bash
 
     - if: ${{ inputs.post-build-command }}
       name: Run post-build command

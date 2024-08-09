@@ -15,7 +15,7 @@ jobs:
       - name: Install packaging tools
         run: |
           git clone https://github.com/EffectiveRange/packaging-tools.git /tmp/packaging-tools
-          echo "/tmp/packaging-tools/python" >> $GITHUB_PATH
+          sudo bash /tmp/packaging-tools/python/install.sh
       - name: Set up test environment
         run: |
           cp -a test/. .
@@ -43,7 +43,7 @@ jobs:
       - name: Install packaging tools
         run: |
           git clone https://github.com/EffectiveRange/packaging-tools.git /tmp/packaging-tools
-          echo "/tmp/packaging-tools/python" >> $GITHUB_PATH
+          sudo bash /tmp/packaging-tools/python/install.sh
       - name: Set up test environment
         run: |
           cp -a test/. .
@@ -72,7 +72,7 @@ jobs:
       - name: Install packaging tools
         run: |
           git clone https://github.com/EffectiveRange/packaging-tools.git /tmp/packaging-tools
-          echo "/tmp/packaging-tools/python" >> $GITHUB_PATH
+          sudo bash /tmp/packaging-tools/python/install.sh
       - name: Set up test environment
         run: |
           cp -a test/. .
@@ -100,7 +100,7 @@ jobs:
       - name: Install packaging tools
         run: |
           git clone https://github.com/EffectiveRange/packaging-tools.git /tmp/packaging-tools
-          echo "/tmp/packaging-tools/python" >> $GITHUB_PATH
+          sudo bash /tmp/packaging-tools/python/install.sh
       - name: Set up test environment
         run: |
           cp -a test/. .
@@ -110,11 +110,11 @@ jobs:
         uses: ./native
         with:
           debian-dist-type: 'dh-virtualenv'
-          debian-dist-command: 'dpkg-buildpackage -us -ui -uc -tc'
+          debian-dist-command: 'pack_python . -s dh-virtualenv -o dist'
 
       - name: Assert packages have created
         run: |
           set -e
           ls -l dist
           ls dist/test_module-1.0.0-py3-none-any.whl
-          ls dist/test-module_1.0.0_amd64.deb
+          ls dist/test-module_1.0.0-1_all.deb

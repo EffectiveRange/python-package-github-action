@@ -34,10 +34,13 @@ Create Python distribution packages: source, wheel and Debian packages
 - `python-version`: Python version to use for the package creation (default: `3.9`)
 - `add-wheel-dist`: Add wheel distribution to the package creation (default: `true`)
 - `debian-dist-type`: Type of the Debian package to create: `fpm-deb`/`dh-virtualenv`/`none` (default: `none`)
-- `debian-dist-command`: Command to run for the Debian package creation (default: `pack_python . -s fpm-deb` or `pack_python . -s dh-virtualenv`)
+- `debian-dist-command`: Command to run for the Debian package creation
 
 ### Cross-platform package creation
 
+- `add-wheel-dist`: Add wheel distribution to the package creation (default: `true`)
+- `debian-dist-type`: Type of the Debian package to create: `fpm-deb`/`dh-virtualenv`/`none` (default: `none`)
+- `debian-dist-command`: Command to run for the Debian package creation
 - `docker-registry`: Docker registry to use (default: `docker.io`)
 - `docker-username`: Docker registry username
 - `docker-password`: Docker registry password
@@ -45,7 +48,6 @@ Create Python distribution packages: source, wheel and Debian packages
 - `container-config`: Devcontainer configuration selector `.devcontainer/<config>/devcontainer.json` (if not
   specified, it will use `.devcontainer/devcontainer.json`)
 - `packaging-folder`: Optional subfolder for running the packaging command (default: `.`)
-- `packaging-command`: Command to run in the devcontainer
 
 ## Outputs
 
@@ -106,5 +108,5 @@ jobs:
           docker-password: ${{ secrets.DOCKERHUB_TOKEN }}
           container-platform: 'linux/arm/v7'
           container-config: 'arm32v7'
-          packaging-command: 'pack_python . --all'
+          debian-dist-command: 'pack_python . --all'
 ```
