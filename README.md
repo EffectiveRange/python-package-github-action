@@ -6,25 +6,25 @@ Create Python distribution packages: source, wheel and Debian packages
 
 - [Features](#features)
 - [Inputs](#inputs)
-    - [Platform independent or native package creation](#platform-independent-or-native-package-creation)
-    - [Cross-platform package creation](#cross-platform-package-creation)
+  - [Platform independent or native package creation](#platform-independent-or-native-package-creation)
+  - [Cross-platform package creation](#cross-platform-package-creation)
 - [Outputs](#outputs)
 - [Usage](#usage)
-    - [Create Python library packages](#create-python-library-packages)
-    - [Create Python application packages](#create-python-application-packages)
-    - [Create cross-platform Python application packages](#create-cross-platform-python-application-packages)
+  - [Create Python packages with FPM](#create-python-packages-with-fpm)
+  - [Create Python packages with dh-virtualenv](#create-python-packages-with-dh-virtualenv)
+  - [Create cross-platform Python application packages](#create-cross-platform-python-application-packages)
 
 ## Features
 
 - Create Python source and wheel packages
-- Create Debian packages for Python libraries and applications (supports [FPM](https://fpm.readthedocs.io/en/latest/)
+- Create Debian packages from Python projects (supports [FPM](https://fpm.readthedocs.io/en/latest/)
   and [dh-virtualenv](https://dh-virtualenv.readthedocs.io/en/latest/) packaging)
 - Cross-platform package creation using QEMU, Docker buildx and devcontainer
 
 ## Inputs
 
 - `package-version`: Version of the package to create (if not provided, will use the given git tag)
-- `is-cross-platform`: Create cross-platform packages using Docker buildx and QEMU (default: `false`)
+- `use-devcontainer`: Create packages using a devcontainer (default: `false`)
 - `pre-build-command`: Command to run before the package creation
 - `post-build-command`: Command to run after the package creation
 
@@ -33,18 +33,19 @@ Create Python distribution packages: source, wheel and Debian packages
 - `python-version`: Python version to use for the package creation (default: `3.9`)
 - `add-source-dist`: Add source distribution to the package creation (default: `true`)
 - `add-wheel-dist`: Add wheel distribution to the package creation (default: `true`)
-- `debian-dist-type`: Type of the Debian package to create: `library`/`application`/`none` (default: `none`)
-- `debian-dist-command`: Command to run for the Debian package creation (default: FPM build for libraries, dh-virtualenv
-  for applications)
+- `debian-dist-type`: Type of the Debian package to create: `fpm-deb`/`dh-virtualenv`/`none` (default: `none`)
+- `debian-dist-command`: Command to run for the Debian package creation (default: `pack_python . -s fpm-deb` or `pack_python . -s dh-virtualenv`)
 
 ### Cross-platform package creation
 
 - `docker-registry`: Docker registry to use (default: `docker.io`)
 - `docker-username`: Docker registry username
 - `docker-password`: Docker registry password
-- `devcontainer-config`: Devcontainer configuration selector `.devcontainer/<config>/devcontainer.json` (if not
+- `container-platform`: Devcontainer platform (eg. `linux/amd64,linux/arm64,linux/arm/v7`, default: `linux/amd64`)
+- `container-config`: Devcontainer configuration selector `.devcontainer/<config>/devcontainer.json` (if not
   specified, it will use `.devcontainer/devcontainer.json`)
-- `devcontainer-command`: Command to run in the devcontainer
+- `packaging-folder`: Optional subfolder for running the packaging command (default: `.`)
+- `packaging-command`: Command to run in the devcontainer
 
 ## Outputs
 
@@ -52,10 +53,10 @@ Create Python distribution packages: source, wheel and Debian packages
 
 ## Usage
 
-### Create Python library packages
+### Create Python packages with FPM
 
 Will generate source and wheel packages.
-In addition, it will create a Debian package for the library using FPM: python3-<library>.deb
+In addition, it will create a Debian package using FPM: python3-<library>.deb
 Upon installing on a Debian system, it will install the library to the system's Python3 environment.
 
 ```yaml
@@ -66,16 +67,13 @@ jobs:
       - uses: actions/checkout@v4
       - uses: EffectiveRange/python-package-github-action@v1
         with:
-          debian-dist-type: 'library'
+          debian-dist-type: 'fpm-deb'
 ```
 
-### Create Python application packages
+### Create Python packages with dh-virtualenv
 
 Will generate source and wheel packages.
-In addition, it will create a Debian package for the application using dh-virtualenv: <application>.deb
-
-> [!Note]
-> The application should have the `debian` directory with the necessary files for the package creation.
+In addition, it will create a Debian package using dh-virtualenv: <application>.deb
 
 ```yaml
 jobs:
@@ -85,8 +83,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: EffectiveRange/python-package-github-action@v1
         with:
-          debian-dist-type: 'application'
-          debian-dist-command: 'make package'
+          debian-dist-type: 'dh-virtualenv'
 ```
 
 ### Create cross-platform Python application packages
@@ -104,9 +101,10 @@ jobs:
       - uses: actions/checkout@v4
       - uses: EffectiveRange/python-package-github-action@v1
         with:
-          is-cross-platform: 'true'
+          use-devcontainer: 'true'
           docker-username: ${{ secrets.DOCKERHUB_USERNAME }}
           docker-password: ${{ secrets.DOCKERHUB_TOKEN }}
-          devcontainer-config: 'arm32v7'
-          devcontainer-command: '.devcontainer/build.sh'
+          container-platform: 'linux/arm/v7'
+          container-config: 'arm32v7'
+          packaging-command: 'pack_python . --all'
 ```

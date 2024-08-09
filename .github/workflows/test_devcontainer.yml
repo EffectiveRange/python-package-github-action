@@ -1,12 +1,12 @@
-name: Test Python packaging
+name: Test Python packaging with devcontainer
 
 on:
   pull_request:
     branches: [ "main" ]
 
 jobs:
-  test-main-fpm-deb:
-    name: Test creating packages (fpm-deb)
+  test-devcontainer-arm32v7:
+    name: Test creating arm32v7 packages
 
     runs-on: ubuntu-latest
 
@@ -18,47 +18,21 @@ jobs:
           rm -rf dist
 
       - name: Create packages
-        uses: ./
+        uses: ./devcontainer
         with:
-          package-version: '1.1.0'
-          debian-dist-type: 'fpm-deb'
+          container-platform: 'linux/arm/v7'
+          container-config: 'arm32v7'
+          packaging-command: python3 setup.py sdist bdist_wheel
 
       - name: Assert packages have created
         run: |
           set -e
           ls -l dist
-          ls dist/test-module-1.1.0.tar.gz
-          ls dist/test_module-1.1.0-py3-none-any.whl
-          ls dist/python3-test-module_1.1.0_all.deb
+          ls dist/test-module-1.0.0.tar.gz
+          ls dist/test_module-1.0.0-py3-none-any.whl
 
-  test-main-dh-virtualenv:
-    name: Test creating packages (dh-virtualenv)
-
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up test environment
-        run: |
-          cp -a test/. .
-          rm -rf dist
-
-      - name: Create packages
-        uses: ./
-        with:
-          package-version: '1.1.0'
-          debian-dist-type: 'dh-virtualenv'
-
-      - name: Assert packages have created
-        run: |
-          set -e
-          ls -l dist
-          ls dist/test-module-1.1.0.tar.gz
-          ls dist/test_module-1.1.0-py3-none-any.whl
-          ls dist/test-module_1.1.0-1_all.deb
-
-  test-main-devcontainer:
-    name: Test creating packages (devcontainer)
+  test-devcontainer-arm64v8:
+    name: Test creating arm64v8 packages
 
     runs-on: ubuntu-latest
 
@@ -70,10 +44,8 @@ jobs:
           rm -rf dist
 
       - name: Create packages
-        uses: ./
+        uses: ./devcontainer
         with:
-          package-version: '1.1.0'
-          use-devcontainer: 'true'
           container-platform: 'linux/arm64'
           container-config: 'arm64v8'
           packaging-command: python3 setup.py sdist bdist_wheel
@@ -82,5 +54,29 @@ jobs:
         run: |
           set -e
           ls -l dist
-          ls dist/test-module-1.1.0.tar.gz
-          ls dist/test_module-1.1.0-py3-none-any.whl
+          ls dist/test-module-1.0.0.tar.gz
+          ls dist/test_module-1.0.0-py3-none-any.whl
+
+  test-devcontainer-amd64:
+    name: Test creating amd64 packages
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up test environment
+        run: |
+          cp -a test/. .
+          rm -rf dist
+
+      - name: Create packages
+        uses: ./devcontainer
+        with:
+          packaging-command: python3 setup.py sdist bdist_wheel
+
+      - name: Assert packages have created
+        run: |
+          set -e
+          ls -l dist
+          ls dist/test-module-1.0.0.tar.gz
+          ls dist/test_module-1.0.0-py3-none-any.whl
