@@ -9,10 +9,6 @@ inputs:
     description: 'Python version'
     required: false
     default: '3.9'
-  add-source-dist:
-    description: 'Should create source distribution?'
-    required: false
-    default: 'true'
   add-wheel-dist:
     description: 'Should create wheel distribution?'
     required: false
@@ -38,15 +34,6 @@ runs:
         python -m pip install --upgrade pip
         pip install .
         mkdir -p dist
-    - name: Install packaging tools
-      shell: bash
-      run: |
-        git clone https://github.com/EffectiveRange/packaging-tools.git /tmp/packaging-tools
-        echo "/tmp/packaging-tools/python" >> $GITHUB_PATH
-    - if: ${{ inputs.add-source-dist == 'true' }}
-      name: Create source distribution
-      shell: bash
-      run: python setup.py sdist
     - if: ${{ inputs.add-wheel-dist == 'true' }}
       name: Create wheel distribution
       shell: bash

@@ -1,4 +1,4 @@
-name: Test platform independent Python packaging
+name: Test native Python packaging
 
 on:
   pull_request:
@@ -12,6 +12,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+      - name: Install packaging tools
+        run: |
+          git clone https://github.com/EffectiveRange/packaging-tools.git /tmp/packaging-tools
+          echo "/tmp/packaging-tools/python" >> $GITHUB_PATH
       - name: Set up test environment
         run: |
           cp -a test/. .
@@ -26,7 +30,6 @@ jobs:
         run: |
           set -e
           ls -l dist
-          ls dist/test-module-1.0.0.tar.gz
           ls dist/test_module-1.0.0-py3-none-any.whl
           ls dist/python3-test-module_1.0.0_all.deb
 
@@ -37,6 +40,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+      - name: Install packaging tools
+        run: |
+          git clone https://github.com/EffectiveRange/packaging-tools.git /tmp/packaging-tools
+          echo "/tmp/packaging-tools/python" >> $GITHUB_PATH
       - name: Set up test environment
         run: |
           cp -a test/. .
@@ -52,7 +59,6 @@ jobs:
         run: |
           set -e
           ls -l dist
-          ls dist/test-module-1.0.0.tar.gz
           ls dist/test_module-1.0.0-py3-none-any.whl
           ls dist/python-test-module_1.0.0_all.deb
 
@@ -63,6 +69,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+      - name: Install packaging tools
+        run: |
+          git clone https://github.com/EffectiveRange/packaging-tools.git /tmp/packaging-tools
+          echo "/tmp/packaging-tools/python" >> $GITHUB_PATH
       - name: Set up test environment
         run: |
           cp -a test/. .
@@ -77,7 +87,6 @@ jobs:
         run: |
           set -e
           ls -l dist
-          ls dist/test-module-1.0.0.tar.gz
           ls dist/test_module-1.0.0-py3-none-any.whl
           ls dist/test-module_1.0.0-1_all.deb
 
@@ -88,6 +97,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+      - name: Install packaging tools
+        run: |
+          git clone https://github.com/EffectiveRange/packaging-tools.git /tmp/packaging-tools
+          echo "/tmp/packaging-tools/python" >> $GITHUB_PATH
       - name: Set up test environment
         run: |
           cp -a test/. .
@@ -103,6 +116,5 @@ jobs:
         run: |
           set -e
           ls -l dist
-          ls dist/test-module-1.0.0.tar.gz
           ls dist/test_module-1.0.0-py3-none-any.whl
           ls dist/test-module_1.0.0_amd64.deb

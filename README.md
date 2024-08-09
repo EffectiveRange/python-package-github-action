@@ -27,11 +27,11 @@ Create Python distribution packages: source, wheel and Debian packages
 - `use-devcontainer`: Create packages using a devcontainer (default: `false`)
 - `pre-build-command`: Command to run before the package creation
 - `post-build-command`: Command to run after the package creation
+- `add-source-dist`: Add source distribution to the package creation (default: `true`)
 
 ### Platform independent or native package creation
 
 - `python-version`: Python version to use for the package creation (default: `3.9`)
-- `add-source-dist`: Add source distribution to the package creation (default: `true`)
 - `add-wheel-dist`: Add wheel distribution to the package creation (default: `true`)
 - `debian-dist-type`: Type of the Debian package to create: `fpm-deb`/`dh-virtualenv`/`none` (default: `none`)
 - `debian-dist-command`: Command to run for the Debian package creation (default: `pack_python . -s fpm-deb` or `pack_python . -s dh-virtualenv`)
