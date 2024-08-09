@@ -5,6 +5,18 @@ branding:
   color: 'blue'
 
 inputs:
+  add-wheel-dist:
+    description: 'Should create wheel distribution?'
+    required: false
+    default: 'true'
+  debian-dist-type:
+    description: 'Debian distribution type (fpm-deb / dh-virtualenv / none)'
+    required: false
+    default: 'none'
+  debian-dist-command:
+    description: 'Debian packaging custom command'
+    required: false
+
   docker-registry:
     description: 'Docker registry'
     required: false
@@ -27,10 +39,6 @@ inputs:
     description: 'Optional subfolder to run packaging command'
     required: false
     default: '.'
-  packaging-command:
-    description: 'Devcontainer run command'
-    required: false
-    default: 'pack_python . --all'
 
 runs:
   using: 'composite'
@@ -55,7 +63,37 @@ runs:
       name: Pull image
       shell: bash
       run: |
-        bash devcontainer/pull_image.sh .devcontainer/${{ inputs.container-config }}/devcontainer.json ${{ inputs.container-platform }}
+        bash scripts/pull_image.sh .devcontainer/${{ inputs.container-config }}/devcontainer.json ${{ inputs.container-platform }}
+    - name: Aggregate build commands
+      shell: bash
+      run: |
+        command="git clone https://github.com/EffectiveRange/packaging-tools.git /tmp/packaging-tools"
+        command="$command && bash /tmp/packaging-tools/python/install.sh"
+        
+        packaging=""
+        
+        if [ "${{ inputs.add-wheel-dist }}" == "true" ]; then
+          packaging="$packaging wheel"
+        fi
+        
+        if [ "${{ inputs.debian-dist-type }}" == "fpm-deb" ]; then
+          packaging="$packaging fpm-deb"
+        fi
+        
+        if [ "${{ inputs.debian-dist-type }}" == "dh-virtualenv" ]; then
+          packaging="$packaging dh-virtualenv"
+        fi
+    
+        if [ "$packaging" != "" ]; then
+          command="$command && pack_python . -s \"$packaging\""
+        fi
+    
+        if [ "${{ inputs.debian-dist-command }}" != "" ]; then
+          command="$command && ${{ inputs.debian-dist-command }}"
+        fi
+
+        echo "Assembled command: $command"
+        echo "COMMAND=$command" >> $GITHUB_ENV
     - name: Create distributions in devcontainer
       uses: devcontainers/ci@v0.3
       with:
@@ -63,4 +101,4 @@ runs:
         platform: ${{ inputs.container-platform }}
         configFile: .devcontainer/${{ inputs.container-config }}/devcontainer.json
         subFolder: ${{ inputs.packaging-folder }}
-        runCmd: ${{ inputs.packaging-command }}
+        runCmd: eval ${{ env.COMMAND }}

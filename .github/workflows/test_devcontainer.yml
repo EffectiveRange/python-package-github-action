@@ -12,6 +12,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+      - name: Install packaging tools
+        run: |
+          git clone https://github.com/EffectiveRange/packaging-tools.git /tmp/packaging-tools
+          sudo bash /tmp/packaging-tools/python/install.sh
       - name: Set up test environment
         run: |
           cp -a test/. .
@@ -22,13 +26,14 @@ jobs:
         with:
           container-platform: 'linux/arm/v7'
           container-config: 'arm32v7'
-          packaging-command: python3 setup.py sdist bdist_wheel
+          debian-dist-type: 'fpm-deb'
 
       - name: Assert packages have created
         run: |
           set -e
           ls -l dist
           ls dist/test_module-1.0.0-py3-none-any.whl
+          ls dist/python3-test-module_1.0.0_all.deb
 
   test-devcontainer-arm64v8:
     name: Test creating arm64v8 packages
@@ -37,6 +42,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+      - name: Install packaging tools
+        run: |
+          git clone https://github.com/EffectiveRange/packaging-tools.git /tmp/packaging-tools
+          sudo bash /tmp/packaging-tools/python/install.sh
       - name: Set up test environment
         run: |
           cp -a test/. .
@@ -47,13 +56,14 @@ jobs:
         with:
           container-platform: 'linux/arm64'
           container-config: 'arm64v8'
-          packaging-command: python3 setup.py sdist bdist_wheel
+          debian-dist-type: 'dh-virtualenv'
 
       - name: Assert packages have created
         run: |
           set -e
           ls -l dist
           ls dist/test_module-1.0.0-py3-none-any.whl
+          ls dist/test-module_1.0.0-1_all.deb
 
   test-devcontainer-amd64:
     name: Test creating amd64 packages
@@ -62,6 +72,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+      - name: Install packaging tools
+        run: |
+          git clone https://github.com/EffectiveRange/packaging-tools.git /tmp/packaging-tools
+          sudo bash /tmp/packaging-tools/python/install.sh
       - name: Set up test environment
         run: |
           cp -a test/. .
@@ -70,10 +84,13 @@ jobs:
       - name: Create packages
         uses: ./devcontainer
         with:
-          packaging-command: python3 setup.py sdist bdist_wheel
+          add-wheel-dist: 'false'
+          debian-dist-command: 'pack_python . --all'
 
       - name: Assert packages have created
         run: |
           set -e
           ls -l dist
           ls dist/test_module-1.0.0-py3-none-any.whl
+          ls dist/python3-test-module_1.0.0_all.deb
+          ls dist/test-module_1.0.0-1_all.deb
