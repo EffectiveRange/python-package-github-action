@@ -13,6 +13,10 @@ inputs:
     description: 'Build packages using devcontainer'
     required: false
     default: 'false'
+  add-source-dist:
+    description: 'Should create source distribution?'
+    required: false
+    default: 'true'
   pre-build-command:
     description: 'Command to execute before packaging'
     required: false
@@ -24,10 +28,6 @@ inputs:
     description: 'Python version'
     required: false
     default: '3.9'
-  add-source-dist:
-    description: 'Should create source distribution?'
-    required: false
-    default: 'true'
   add-wheel-dist:
     description: 'Should create wheel distribution?'
     required: false
@@ -71,11 +71,9 @@ runs:
   using: 'composite'
   steps:
     - name: Symlink current Actions repo
-      env:
-        GH_ACTION_REPO: ${{ github.action_repository }}
-        GH_ACTION_REF: ${{ github.action_ref }}
+      working-directory: ${{ github.action_path }}
       shell: bash
-      run: ln -s /home/runner/work/_actions/$GH_ACTION_REPO/$GH_ACTION_REF/  /home/runner/work/_actions/current
+      run: ln -fs $(realpath ../)  ${{ github.workspace }}/
     - name: Set up environment
       id: set-env
       shell: bash
@@ -93,10 +91,21 @@ runs:
       shell: bash
       run: sed -i "s/version='.*',/version='$VERSION',/" setup.py
 
+    - name: Install packaging tools
+      shell: bash
+      run: |
+        git clone https://github.com/EffectiveRange/packaging-tools.git /tmp/packaging-tools
+        echo "/tmp/packaging-tools/python" >> $GITHUB_PATH
+
     - if: ${{ inputs.pre-build-command }}
       name: Run pre-build command
       shell: bash
       run: ${{ inputs.pre-build-command }}
+
+    - if: ${{ inputs.add-source-dist == 'true' }}
+      name: Create source distribution
+      shell: bash
+      run: python setup.py sdist
 
     - if: ${{ inputs.use-devcontainer != 'true' }}
       name: Build native packages

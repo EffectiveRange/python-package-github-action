@@ -28,7 +28,6 @@ jobs:
         run: |
           set -e
           ls -l dist
-          ls dist/test-module-1.0.0.tar.gz
           ls dist/test_module-1.0.0-py3-none-any.whl
 
   test-devcontainer-arm64v8:
@@ -54,7 +53,6 @@ jobs:
         run: |
           set -e
           ls -l dist
-          ls dist/test-module-1.0.0.tar.gz
           ls dist/test_module-1.0.0-py3-none-any.whl
 
   test-devcontainer-amd64:
@@ -78,5 +76,4 @@ jobs:
         run: |
           set -e
           ls -l dist
-          ls dist/test-module-1.0.0.tar.gz
           ls dist/test_module-1.0.0-py3-none-any.whl
