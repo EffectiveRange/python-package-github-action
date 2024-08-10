@@ -24,6 +24,10 @@ inputs:
     required: false
     default: 'true'
 
+  install-packaging-tools:
+    description: 'Should install packaging tools?'
+    required: false
+    default: 'true'
   add-wheel-dist:
     description: 'Should create wheel distribution?'
     required: false
@@ -96,12 +100,6 @@ runs:
       shell: bash
       run: sed -i "s/version='.*',/version='$VERSION',/" setup.py
 
-    - name: Install packaging tools
-      shell: bash
-      run: |
-        git clone https://github.com/EffectiveRange/packaging-tools.git /tmp/packaging-tools
-        sudo bash /tmp/packaging-tools/python/install.sh
-
     - if: ${{ inputs.pre-build-command }}
       name: Run pre-build command
       shell: bash
@@ -116,15 +114,17 @@ runs:
       name: Build native packages
       uses: ./.github/actions/native
       with:
-        python-version: ${{ inputs.python-version }}
+        install-packaging-tools: ${{ inputs.install-packaging-tools }}
         add-wheel-dist: ${{ inputs.add-wheel-dist }}
         debian-dist-type: ${{ inputs.debian-dist-type }}
         debian-dist-command: ${{ inputs.debian-dist-command }}
+        python-version: ${{ inputs.python-version }}
 
     - if: ${{ inputs.use-devcontainer == 'true' }}
       name: Build packages using a devcontainer
       uses: ./.github/actions/devcontainer
       with:
+        install-packaging-tools: ${{ inputs.install-packaging-tools }}
         add-wheel-dist: ${{ inputs.add-wheel-dist }}
         debian-dist-type: ${{ inputs.debian-dist-type }}
         debian-dist-command: ${{ inputs.debian-dist-command }}
