@@ -45,6 +45,10 @@ inputs:
     required: false
     default: '3.9'
 
+  free-disk-space:
+    description: 'Free disk space before running'
+    required: false
+    default: 'false'
   docker-registry:
     description: 'Docker registry'
     required: false
@@ -136,6 +140,7 @@ runs:
         add-wheel-dist: ${{ inputs.add-wheel-dist }}
         debian-dist-type: ${{ inputs.debian-dist-type }}
         debian-dist-command: ${{ inputs.debian-dist-command }}
+        free-disk-space: ${{ inputs.free-disk-space }}
         docker-registry: ${{ inputs.docker-registry }}
         docker-username: ${{ inputs.docker-username }}
         docker-password: ${{ inputs.docker-password }}

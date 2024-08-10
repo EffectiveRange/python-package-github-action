@@ -21,6 +21,10 @@ inputs:
     description: 'Debian packaging custom command'
     required: false
 
+  free-disk-space:
+    description: 'Free disk space before running'
+    required: false
+    default: 'false'
   docker-registry:
     description: 'Docker registry'
     required: false
@@ -47,7 +51,8 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - name: Free disk space
+    - if : ${{ inputs.free-disk-space == 'true' }}
+      name: Free disk space
       uses: jlumbroso/free-disk-space@main
       with:
         tool-cache: true
