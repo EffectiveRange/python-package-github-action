@@ -12,10 +12,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - name: Install packaging tools
-        run: |
-          git clone https://github.com/EffectiveRange/packaging-tools.git /tmp/packaging-tools
-          sudo bash /tmp/packaging-tools/python/install.sh
       - name: Set up test environment
         run: |
           cp -a test/. .
@@ -40,10 +36,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - name: Install packaging tools
-        run: |
-          git clone https://github.com/EffectiveRange/packaging-tools.git /tmp/packaging-tools
-          sudo bash /tmp/packaging-tools/python/install.sh
       - name: Set up test environment
         run: |
           cp -a test/. .
@@ -69,10 +61,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - name: Install packaging tools
-        run: |
-          git clone https://github.com/EffectiveRange/packaging-tools.git /tmp/packaging-tools
-          sudo bash /tmp/packaging-tools/python/install.sh
       - name: Set up test environment
         run: |
           cp -a test/. .
@@ -97,10 +85,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - name: Install packaging tools
-        run: |
-          git clone https://github.com/EffectiveRange/packaging-tools.git /tmp/packaging-tools
-          sudo bash /tmp/packaging-tools/python/install.sh
       - name: Set up test environment
         run: |
           cp -a test/. .

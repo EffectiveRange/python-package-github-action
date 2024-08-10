@@ -5,6 +5,10 @@ branding:
   color: 'blue'
 
 inputs:
+  install-packaging-tools:
+    description: 'Should install packaging tools?'
+    required: false
+    default: 'true'
   add-wheel-dist:
     description: 'Should create wheel distribution?'
     required: false
@@ -71,8 +75,12 @@ runs:
     - name: Aggregate build commands
       shell: bash
       run: |
-        command="git clone https://github.com/EffectiveRange/packaging-tools.git /tmp/packaging-tools"
-        command="$command && bash /tmp/packaging-tools/python/install.sh"
+        command="ls -la"
+        
+        if [ "${{ inputs.install-packaging-tools }}" == "true" ]; then
+          command="$command && git clone https://github.com/EffectiveRange/packaging-tools.git /tmp/packaging-tools"
+          command="$command && bash /tmp/packaging-tools/python/install.sh"
+        fi
         
         packaging=""
         
