@@ -27,8 +27,8 @@ Create Python distribution packages: source, wheel and Debian packages
 - `use-devcontainer`: Create packages using a devcontainer (default: `false`)
 - `pre-build-command`: Command to run before the package creation
 - `post-build-command`: Command to run after the package creation
-- `add-source-dist`: Add source distribution to the package creation (default: `true`)
 - `install-packaging-tools`: Install [Python packaging tools](https://github.com/EffectiveRange/packaging-tools/tree/main/python) (default: `true`)
+- `add-source-dist`: Add source distribution to the package creation (default: `true`)
 - `add-wheel-dist`: Add wheel distribution to the package creation (default: `true`)
 - `debian-dist-type`: Type of the Debian package to create: `fpm-deb`/`dh-virtualenv`/`none` (default: `none`)
 - `debian-dist-command`: Command to run for the Debian package creation
@@ -39,6 +39,7 @@ Create Python distribution packages: source, wheel and Debian packages
 
 ### Cross-platform package creation
 
+- `free-disk-space`: Free up disk space before build (default: `false`)
 - `docker-registry`: Docker registry to use (default: `docker.io`)
 - `docker-username`: Docker registry username
 - `docker-password`: Docker registry password
