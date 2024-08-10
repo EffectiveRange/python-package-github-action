@@ -76,13 +76,6 @@ outputs:
 runs:
   using: 'composite'
   steps:
-    - name: Symlink current action repo
-      env:
-        action_path: ${{ github.action_path }}
-      shell: bash
-      run: |
-        ln -fs ${{ env.action_path }} .github/actions
-
     - name: Set up environment
       id: set-env
       shell: bash
@@ -96,9 +89,17 @@ runs:
           echo "Error: Invalid version"
           exit 1
         fi
+
     - name: Update version in setup.py
       shell: bash
       run: sed -i "s/version='.*',/version='$VERSION',/" setup.py
+
+    - name: Commit changes
+      shell: bash
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git diff --exit-code || git commit -am "Update version to $VERSION"
 
     - if: ${{ inputs.pre-build-command }}
       name: Run pre-build command
@@ -109,6 +110,13 @@ runs:
       name: Create source distribution
       shell: bash
       run: python setup.py sdist
+
+    - name: Symlink current action repo
+      env:
+        action_path: ${{ github.action_path }}
+      shell: bash
+      run: |
+        ln -fs ${{ env.action_path }} .github/actions
 
     - if: ${{ inputs.use-devcontainer != 'true' }}
       name: Build native packages
@@ -144,17 +152,12 @@ runs:
       shell: bash
       run: ${{ inputs.post-build-command }}
 
-    - name: Commit changes
-      shell: bash
-      run: |
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        git diff --exit-code || git commit -am "Update version to $VERSION"
     - name: Push changes
       uses: ad-m/github-push-action@master
       if: ${{ !startsWith(github.ref, 'refs/pull/') && success() }}
       with:
         github_token: ${{ github.token }}
+
     - name: Publish distributions
       uses: actions/upload-artifact@v4
       if: ${{ !startsWith(github.ref, 'refs/pull/') }}
