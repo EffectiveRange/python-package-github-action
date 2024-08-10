@@ -43,6 +43,10 @@ inputs:
 runs:
   using: 'composite'
   steps:
+    - name: Free disk space
+      uses: jlumbroso/free-disk-space@main
+      with:
+        tool-cache: true
     - name: Set up QEMU for multi-architecture builds
       uses: docker/setup-qemu-action@v3
     - name: Setup Docker buildx for multi-architecture builds
