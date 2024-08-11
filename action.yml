@@ -96,7 +96,7 @@ runs:
 
     - name: Update version in setup.py
       shell: bash
-      run: sed -i "s/version='.*',/version='$VERSION',/" setup.py
+      run: sed -i "s/version=['\"].*['\"]/version='$VERSION'/" setup.py
 
     - name: Commit changes
       shell: bash
